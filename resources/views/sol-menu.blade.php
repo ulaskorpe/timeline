@@ -33,7 +33,8 @@
               </li>
               <li @if(Session::get('sayfa')==4) class="active" @endif><a href="<?=url;?>/izinler" data-i18n="nav.dash.crm" class="menu-item">Personel İzinleri</a>
               </li>
-              
+              <li @if(Session::get('sayfa')==5) class="active" @endif><a href="{{route('timeline')}}" data-i18n="nav.dash.crm" class="menu-item">Timeline</a>
+              </li>
             </ul>
           </li>
          
