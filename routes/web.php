@@ -22,7 +22,7 @@ Auth::routes();
 
 //Route::get('login',array('as'=>'login','uses'=>'UserController@login'));
 Route::get('/timeline','timelineController@index')->name('timeline');
-
+Route::post('/timelineprocess','timelineController@tarihKaydet')->name('tarihKaydet');
 
 Route::get('/',array('as'=>'giris','uses'=>'girisController@giris'));
 

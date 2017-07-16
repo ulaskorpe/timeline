@@ -25,7 +25,7 @@
     
     <!-- BEGIN Vendor CSS-->
     <link rel="stylesheet" type="text/css" href="{{url('/')}}/css/plugins/charts/jquery-jvectormap-2.0.3.css">
-    <link rel="stylesheet" type="text/css" href="{{url('/')}}/css/plugins/charts/morris.css">
+    
     <link rel="stylesheet" type="text/css" href="{{url('/')}}/css/plugins/extensions/unslider.css">
     <!-- END Vendor CSS-->
     <!-- BEGIN ROBUST CSS-->
@@ -39,6 +39,6 @@
     <link rel="stylesheet" type="text/css" href="{{url('/')}}/css/components/weather-icons/climacons.min.css">
     <!-- END Page Level CSS-->
     <!-- BEGIN Custom CSS-->
-    <link rel="stylesheet" type="text/css" href="{{url('/')}}/assets/css/style.css">
+    <link rel="stylesheet" type="text/css" href="{{url('/')}}/css/style.css">
     <!-- END Custom CSS-->
   </head>

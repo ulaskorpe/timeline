@@ -2,7 +2,7 @@
 <?php
 
 //var_dump($_REQUEST);
-define('url','http://localhost:8080/orangetech/public');
+define('url','http://localhost:8080/orangesoft/public');
 ?>
 <html lang="en" data-textdirection="LTR" class="loading">
   @include('head')
