@@ -7,6 +7,8 @@ use Session;
 use App\Http\Models\Event;
 use App\Http\Models\Temp;
 use Carbon\Carbon;
+use DateTime;
+use DB;
 class timelineController extends Controller
 {
 
@@ -29,7 +31,11 @@ class timelineController extends Controller
     }
 
     public function tarihKaydet(Request $gelenler){
-			$start_date=$this->tarihYap($gelenler->start_date);
+			//$dateTime = new DateTime($gelenler->start_date);
+    	//return $dateTime.now();
+
+		$start_date=$this->tarihYap($gelenler->start_date);
+		$end_date=$this->tarihYap($gelenler->end_date);
 		//$start_date=Carbon::parse($gelenler->input('start_date'))->format('Y-m-d');
 		///$start_date= Carbon::createFromFormat('Y-m-d', $request->$gelenler->input('start_date'));//$gelenler->input('start_date');
     	///Object { start_date: Date 2017-07-12T07:50:00.000Z, end_date: Date 2017-07-12T10:20:00.000Z, text: "vfggfg", id: 1500212849900, _timed: true, _sday: 2, _inner: false, _sorder: 0, _count: 1, ex: "added" }
@@ -39,13 +45,34 @@ class timelineController extends Controller
 	   				return ['msg'=>'date cant be before NOW','hata'=>true];
 	   			}
 
+
+				Event::insert([
+    				['start_date' => $start_date, 'end_date' => $end_date ,'text'=>$gelenler->text]
+   
+				]);
+
+
+	   				$msg='Added';
     		}else if($gelenler->input('ex')=='changed'){
+    			//Event::update(['start_date' => $start_date, 'end_date' => $end_date ,'text'=>$gelenler->text])->where('id','=',$gelenler->id);
 
-			}else if($gelenler->input('ex')=='updated'){
+				//Event::where('id','=', $gelenler->id)->update(['start_date' => $start_date, 'end_date' => $end_date ,'text'=>$gelenler->text]);
 
+				DB::table('events')
+            ->where('id','=', $gelenler->id)->update(['start_date' => $start_date, 'end_date' => $end_date ,'text'=>$gelenler->text]);
+			/*	$event=Event::find($gelenler->id);
+				$event->start_date=$start_date;
+				$event->end_date=$end_date;
+				$event->text=$gelenler->text;
+				$event->save();*/
+
+    			$msg='changed  ['.$gelenler->id.']';
+			}else if($gelenler->input('ex')=='deleted'){
+				Event::where('id','=',$gelenler->id)->delete();
+				$msg='deleted';
 			}    			
 			//dd($gelenler->all());
-			return [ 'msg'=>'input'.$start_date.' :carbon '.Carbon::now(),'hata'=>false];
+			return [ 'msg'=>$msg.$start_date.' :carbon '.Carbon::now(),'hata'=>false]; 
 
     }
 }

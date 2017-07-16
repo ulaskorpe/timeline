@@ -72,8 +72,8 @@ function init(){
 	//var ajax = new XMLHttpRequest();
 		//alert(new Date());
 
-var hata = false;
-var msg = '';
+ 
+
 scheduler.config.xml_date="%Y-%m-%d %H:%i";
 scheduler.config.show_loading = true;
 scheduler.init('scheduler_here', '<?=date('Y-m-d')?>',"week");
@@ -83,33 +83,36 @@ var json_string = scheduler.toJSON();
 var events = [
 
 @foreach($events as $event)
-{id:{{$event->id}}, text:"{{$event->text}}",   start_date:"{{$event->start_date}}",end_date:"{{$event->end_date}}"},
+{id:{{$event->id}}, text:"{{$event->text}}",   start_date:"{{$event->start_date}}",end_date:"{{$event->end_date}}",disabled:true},
 @endforeach
 
 ];
  
 scheduler.parse(events, "json");//takes the name and format of the data source
-
+var goster=true;
 scheduler.attachEvent("onEventDeleted", function(id,ev){
 		ev["ex"]='deleted';
 	//console.log(ev);
+ 
    $.ajax({
         	 
             type: "GET",
             url: '{{route('tarihKaydet')}}',
             data: ev,
             success: function( response ) {
-               hataGoster(response.hata,response.msg);
+               	hataGoster(response.hata,response.msg);
             }
             ,
-	error: function(XMLHttpRequest, textStatus, errorThrown) {
-     			alert(  'some error');
+			error: function(XMLHttpRequest, textStatus, errorThrown) {
+     			alert(  'some error del');
   			}
         });
 	});
 
 
 scheduler.attachEvent("onEventAdded", function(id,ev){
+	 
+ 
 	ev["ex"]='added';
 	//console.log(ev);
    $.ajax({
@@ -119,15 +122,23 @@ scheduler.attachEvent("onEventAdded", function(id,ev){
             data: ev,
             success: function( response ) {
                hataGoster(response.hata,response.msg);
+               	if(response.hata){
+   						goster=false;
+   						scheduler.deleteEvent(ev.id);
+
+
+   					}
+   					console.log(response);
+   					
+
             },
 
          	error: function(XMLHttpRequest, textStatus, errorThrown) {
-     			alert(  'some error');
+     			alert(  'some error add');
   			}
             
 
         });
-
 
 	});
 
@@ -135,7 +146,8 @@ scheduler.attachEvent("onEventChanged", function(id,ev){
    // alert(json_string);
 	//ev = JSON.stringify(ev);
 ev["ex"]='changed';
-//console.log(ev);
+ 
+
    $.ajax({
         	 
             type: "GET",
@@ -147,7 +159,7 @@ ev["ex"]='changed';
 
             }
             ,	error: function(XMLHttpRequest, textStatus, errorThrown) {
-     			alert(  'some error');
+     			alert(  'some error changed');
   			}
 
         });
@@ -159,6 +171,7 @@ ev["ex"]='changed';
 
 function hataGoster(hata,msg){
 //alert(hata+msg);
+ if(goster){
 if(hata){
 $('#sonuc').hide();
 $('#hata').show();
@@ -168,9 +181,10 @@ $('#hata').html(msg);
 $('#hata').hide();
 $('#sonuc').show();
 $('#sonuc').html(msg);
+ 
 
-} 
-
+}
+}
 }///hata göster
  /*
 }
