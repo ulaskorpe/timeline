@@ -3,19 +3,24 @@
 @section('goster')
 
 
+<meta name="_token" content="{{{ csrf_token() }}}"/>
+
 
 
 <div class="container">
 
  
- 
-<div class="panel-heading"><h3>Timeline</h3></div>
- 
-<form id="xml_form" action="xml_writer.php" method="post" target="hidden_frame" >
-    <input type="text" name="data" value="" id="data">
-</form>
 
-<input type="button" name="save" value="save" onclick="save()" >
+<div class="panel-heading"><h3>Timeline</h3></div>
+
+ 
+<div class="alert alert-success" role="alert" id="sonuc" > </div>
+ 
+ 
+<div class="alert alert-danger" role="alert" id="hata" > </div>
+ 
+
+
 <div id="scheduler_here" class="dhx_cal_container" style='width:100%; height:100%;'>
     <div class="dhx_cal_navline">
         <div class="dhx_cal_prev_button">&nbsp;</div>
@@ -29,7 +34,6 @@
 </div>
 
  
- 
 </div>
 <script src="https://code.jquery.com/jquery-1.9.1.min.js"></script>
  <script src="{{asset('js/dhtmlxscheduler.js')}}" type="text/javascript"></script>
@@ -38,22 +42,46 @@
 
   <script type="text/javascript" charset="utf-8">
 
-function save(){
+/*function save(){
     var form = document.getElementById("xml_form");
     form.elements.data.value = scheduler.toJSON();
+    $('#sonuc').html(scheduler.toJSON());
    // form.submit();
-}
+}*/
 
-		function init(){
+     $( document ).ready(function() {
+   
+		init();
+
+		$('#hata').hide();
+		$('#sonuc').hide();
+/*
+  $('#tikla').on('click', function (e) {
+  	//alert('ok');
+     //  e.preventDefault();
+    
+     
+    });*/
+
+    });////ready
+
+
+
+
+function init(){
+	//var ajax = new XMLHttpRequest();
 		//alert(new Date());
-		scheduler.config.xml_date="%Y-%m-%d %H:%i";
-	scheduler.init('scheduler_here', '<?=date('Y-m-d')?>',"week");
+
+var hata = false;
+var msg = '';
+scheduler.config.xml_date="%Y-%m-%d %H:%i";
+scheduler.config.show_loading = true;
+scheduler.init('scheduler_here', '<?=date('Y-m-d')?>',"week");
 	///scheduler.setImagePath("{{asset('images/imgs_dhx_terrace')}}");
 var json_string = scheduler.toJSON();
 
 var events = [
-/*{id:1, text:"Meeting",   start_date:"04/11/2013 14:00",end_date:"04/11/2013 17:00"},
-{id:2, text:"Conference",start_date:"04/10/2013 12:00",end_date:"04/10/2013 19:00"},*/
+
 @foreach($events as $event)
 {id:{{$event->id}}, text:"{{$event->text}}",   start_date:"{{$event->start_date}}",end_date:"{{$event->end_date}}"},
 @endforeach
@@ -61,41 +89,98 @@ var events = [
 ];
  
 scheduler.parse(events, "json");//takes the name and format of the data source
+
+scheduler.attachEvent("onEventDeleted", function(id,ev){
+		ev["ex"]='deleted';
+	//console.log(ev);
+   $.ajax({
+        	 
+            type: "GET",
+            url: '{{route('tarihKaydet')}}',
+            data: ev,
+            success: function( response ) {
+               hataGoster(response.hata,response.msg);
+            }
+            ,
+	error: function(XMLHttpRequest, textStatus, errorThrown) {
+     			alert(  'some error');
+  			}
+        });
+	});
+
+
+scheduler.attachEvent("onEventAdded", function(id,ev){
+	ev["ex"]='added';
+	//console.log(ev);
+   $.ajax({
+        	 
+            type: "GET",
+            url: '{{route('tarihKaydet')}}',
+            data: ev,
+            success: function( response ) {
+               hataGoster(response.hata,response.msg);
+            },
+
+         	error: function(XMLHttpRequest, textStatus, errorThrown) {
+     			alert(  'some error');
+  			}
+            
+
+        });
+
+
+	});
+
 scheduler.attachEvent("onEventChanged", function(id,ev){
    // alert(json_string);
-    $.post("{{route('tarihKaydet')}}",{name:'ulaş',lname:'körpe'},function(data){
-			alert(data);
-   });
+	//ev = JSON.stringify(ev);
+ev["ex"]='changed';
+//console.log(ev);
+   $.ajax({
+        	 
+            type: "GET",
+            url: '{{route('tarihKaydet')}}',
+            data: ev,
+            success: function( response ) {
+                //$("#sonuc").append( response.a );
+                	hataGoster(response.hata,response.msg);
+
+            }
+            ,	error: function(XMLHttpRequest, textStatus, errorThrown) {
+     			alert(  'some error');
+  			}
+
+        });
+
+
    
-});
-/*
-var events = [
-@foreach($events as $event)
-{id:{{$event->id}}, text:"{{$event->text}}",   start_date:"{{$event->start_date}}",end_date:"{{$event->end_date}}"},
-@endforeach
+});////event changed
 
-{id:111, text:"Interview", start_date:"04/14/2013 09:00",end_date:"04/14/2013 10:00"}
-];
- 
-scheduler.parse(events, "json");//takes the name and format of the data source*/
-//alert(scheduler.load("connector.php","xml"));
 
-//scheduler.config.icons_select = ["icon_details"];
-//scheduler.config.xml_date="%Y-%m-%d %H:%i";
+function hataGoster(hata,msg){
+//alert(hata+msg);
+if(hata){
+$('#sonuc').hide();
+$('#hata').show();
+$('#hata').html(msg);
+}else{
+
+$('#hata').hide();
+$('#sonuc').show();
+$('#sonuc').html(msg);
+
+} 
+
+}///hata göster
+ /*
+}
 var dp = new dataProcessor("connector.php");
 dp.init(scheduler);
+*/
 	}
 </script>
   
 
-    <script>
-    $( document ).ready(function() {
-   
-init();
-
-    });
- 
     
-    </script>
  
 
